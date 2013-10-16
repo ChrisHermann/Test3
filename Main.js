@@ -143,7 +143,7 @@ $(function(){
           $("#ImgCrateT_"+$(this).attr('number')).animate({ top: -90},{
           complete: function()
           {
-            ShowMessage("Flot klaret, du kom til bane "+Level, "Prøv Igen");
+            ShowMessage("Flot klaret", "Du kom til bane "+Level, "Prøv Igen");
             Lost=true;
             Paused=false;
             
@@ -221,7 +221,7 @@ $(function(){
   * @param string ButtonMessage
   * The text on the button
   */
-  function ShowMessage(Message, ButtonMessage) {
+  /*function ShowMessage(Message, ButtonMessage) {
     //Tell the game it is currently showing a message to pseudo-pause it.
     ShowingMessage = true;
     
@@ -235,6 +235,20 @@ $(function(){
     Current = $("#MessageText");
     //Apply the string to the div, scale it, and then recenter it.
     Current.html(Message);
+  }*/
+  function ShowMessage(TitleMessage, TextMessage, ButtonMessage) {
+    //Tell the game it is currently showing a message to pseudo-pause it.
+    ShowingMessage = true;
+    
+    //Append the needed containers.
+    $("#MessageHUD").show();
+    $("#BlurEffect").show();
+    $("#MessageButton").show();
+    $("#GFXG").hide();
+    
+    $("#MessageTitle").html(TitleMessage);
+    $("#MessageText").html(TextMessage);
+    $("#MessageButton").attr('value', ButtonMessage);
   }
 
   /**
