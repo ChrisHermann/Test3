@@ -1,0 +1,74 @@
+/**
+ * The Style Sheet
+ */
+* {
+  -WEBKIT-USER-SELECT: NONE; /* SAFARI, CHROME */
+  -KHTML-USER-SELECT: NONE; /* KONQUEROR */
+  -MOZ-USER-SELECT: NONE; /* FIREFOX */
+  -MS-USER-SELECT: NONE; /* IE */
+  USER-SELECT: NONE; /* CSS3 */
+}
+
+
+#HustlerGamePlayground .crate{
+	position: absolute;
+    width:150px;
+}
+
+#HustlerGamePlayground .ButtonStyle {
+  font-family: Helvetica Neue, Helvetica Arial, sans-serif;
+  font-size: 21px;
+  font-weight: bold;
+  text-decoration: none;
+  color: #402a20;
+  background-color:#eab344;
+  height: 48px;
+  width: 200px;
+  text-align: center;
+  display: block;
+  border: solid 4px #402a20;
+  border-radius: 48px;
+  margin: 0 auto;
+}
+
+
+#HustlerGamePlayground .ButtonStyle:hover {
+  background-color: #ffd258;
+}
+
+
+
+#HustlerGamePlayground #BorderTop {
+  background-color: #D27928;
+  position: relative;
+  width: 99%;
+  margin: 0.5% 0.5% 0 0.5%;
+  display: inline-block;
+  padding: 4px 0 4px 0;
+}
+
+#HustlerGamePlayground #MessageHUD{
+	color: #ffffff; 
+	text-align: center;
+  font-family: Helvetica Neue, Helvetica Arial, sans-serif;
+	border-radius: 14px;
+	padding: 30px;
+	vertical-align: middle; 
+	background: #D27928; 
+	overflow:hidden;
+  position: relative;
+  top: 200px;
+  z-index: 3;
+}
+
+#HustlerGamePlayground .UIDiv {
+  color: #ffffff;
+  font-family: Helvetica Neue, Helvetica Arial, sans-serif;
+  font-weight: bold; 
+  font-size: 20px;
+  float: left;
+  position: relative;
+  vertical-align: center;
+  height: 48px;
+  padding: 0 0 0 45px;
+}

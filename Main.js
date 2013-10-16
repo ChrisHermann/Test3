@@ -5,64 +5,162 @@
 
 var REFRESH_RATE = 30;
 
-/*
-* --------------------------------------------------------------------
-* -- the main declaration: --
-* --------------------------------------------------------------------
-*/
-
 /**
-* This game uses gamequery. The documentation for this can be found at:
-* http://gamequeryjs.com/documentation/
-* It is purely made in the DOM and as such does not use canvas at all.
+* This game is purely made in the DOM and as such does not use canvas at all.
 */
 
 $(function(){
-  var Level=0;
+
+/**
+   * Custom sorting function, so the array knows to sort based on an attribute.
+   * @param a
+   *   object a to be sorted.
+   * @param b
+   *   object b to be sorted.
+   */
+  function CustomSort(a,b) {
+    return(a.x-b.x);
+  }
+  
+  //Initiating variables.
+  var Level=2;
   var FullCrate=0;
   var TurnsThisLevel=8;
   var SpeedThisLevel=0.2;
   var CratesThisLevel=5;
+  var CrateWidth = 0;
   var Delta = 0;
   var Then = new Date().getTime();
   var Turning = false;
   var Crates = new Array();
   var ShowingMessage = false;
+  var Paused = false;
+  var Lost=false;
+  var Started = false;
+  var Loaded = 0;
+  var Images = 4;
+  
+  //Initiate Loading scripts
+  for (i=0; i<Images; ++i)
+  {
+    //Append a test image for each image we need loaded, this way we can pre-buffer them.
+    $("#HustlerGamePlayground").append("<img id='Test_"+i+"' class='crate'  /img>");
+    //Hide them since they should not be seen.
+    $("#Test_"+i).hide();
+    $("#Test_"+i).load(function() {
+      if ($(this).width()>CrateWidth) CrateWidth=$(this).width();
+      $(this).remove();
+      ++Loaded;
+      if (Loaded == Images)
+      {
+        CreateLevel();
+        Started = true;
+        Crates[FullCrate].Open();
+      }
+    });
+  }
+  $("#Test_0").attr('src','./FlamingoBoxBack.png');
+  $("#Test_1").attr('src','./FlamingoBoxKids.png');
+  $("#Test_2").attr('src','./FlamingoBoxTop.png');
+  $("#Test_3").attr('src','./FlamingoBoxFront.png');
   
   
-  
-    $("#MessageHUD").hide();
-    $("#BlurEffect").hide();
-    $("#MessageButton").hide();
+  $("#MessageHUD").hide();
+  $("#BlurEffect").hide();
+  $("#MessageButton").hide();
   
   
   CreateLevel = function(){
     ++Level;
     TurnsThisLevel=Level+1;
-    SpeedThisLevel=3/Level;
+    SpeedThisLevel=Math.min(2.5/(Level+1));
     CratesThisLevel=Math.min(5,3+Math.floor(Level/4));
     for(i=0; i<CratesThisLevel; ++i)
     {
       if ($("#Crate_"+i).length==0)
       {
-        $("#Crates").append('<div id="Crate_'+i+'" class="CrateDiv"><img id="ImgCrate_'+i+'" src="http://tavmjong.free.fr/INKSCAPE/MANUAL/images/QUICKSTART/ISO/iso_def.png" Number="1" class="crate"/></div>');
+        $("#Crates").append('<div id="Crate_'+i+'" class="CrateDiv"><img id="ImgCrateB_'+i+'" src="./FlamingoBoxBack.png" Number="1" class="crate" draggable="false"/><img id="ImgCrateK_'+i+'" src="./FlamingoBoxKids.png" Number="1" class="crate" draggable="false"/><img id="ImgCrateF_'+i+'" src="./FlamingoBoxFront.png" Number="1" class="crate" draggable="false"/><img id="ImgCrateT_'+i+'" src="./FlamingoBoxTop.png" Number="1" class="crate" draggable="false"/></div>');
+        
         Crates[i]=$("#Crate_"+i);
-        Crates[i].css({left: 200*i, top: 400});
+        Crates[i].css({left: 200*(i-(CratesThisLevel/2-0.5))+$("#HustlerGamePlayground").width()/2 - CrateWidth/2, top: 400});
         Crates[i].css("position", "absolute");
+        CrateToSort = new Array();
+        for(j=0; j<i; ++j)
+        {
+          CrateToSort[j] = {number: j, x: Crates[j].offset().left};
+        }
+        CrateToSort.sort(CustomSort);
+        if (i==CratesThisLevel-1)
+        for(j=0; j<i; ++j)
+        {
+          Crates[CrateToSort[j].number].animate({left: 200*(j-(CratesThisLevel/2-0.5))+$("#HustlerGamePlayground").width()/2 - CrateWidth/2, top: 400}, {duration: 500});
+        }
         Crates[i].attr('number',i);
         Crates[i].click(function(e){
-          if (Turning==false && !ShowingMessage) {
+          if (Turning==false && !ShowingMessage && !Paused) {
             if (FullCrate==$(this).attr('number'))
-              Win();
+              Win($(this).attr('number'));
             else
-              Lose();
+              Lose($(this).attr('number'));
           }
         });
+        
+        if (i==FullCrate)
+          $("#ImgCrateK_"+i).css({top: 40});
+        else
+          $("#ImgCrateK_"+i).css({top: 40, visibility:'hidden'});
+        
+        Crates[i].Open = function() {
+          $("#ImgCrateT_"+$(this).attr('number')).animate({ top: -90},{
+          complete: function()
+          {
+            $("#ImgCrateK_"+$(this).parent().attr('number')).animate({ top: 3},{
+            complete: function()
+            {
+              $(this).animate({ top: 3},{
+              complete: function()
+              {
+                $(this).animate({ top: 40},{
+                complete: function()
+                {
+                  $("#ImgCrateT_"+$(this).parent().attr('number')).animate({ top: 0},{
+                  complete: function()
+                  {
+                    Paused=false;
+                  },  duration: 500},'linear');
+                },  duration: 150},'easeOutQuint');
+              },  duration: 300},'linear');
+            },  duration: 150},'easeInQuint');
+          },  duration: 500},'linear');
+          
+          
+          
+          Paused=true;
+        }
+        
+        
+        Crates[i].OpenFalse = function() {
+          $("#ImgCrateT_"+$(this).attr('number')).animate({ top: -90},{
+          complete: function()
+          {
+            ShowMessage("Flot klaret, du kom til bane "+Level, "Prøv Igen");
+            Lost=true;
+            Paused=false;
+            
+            Crates[FullCrate].Open();
+          },  duration: 1000},'linear');
+          
+          Paused=true;
+        }
+        if (Level!=1) $(Crates[i]).fadeIn();
       }
+      
+      
+      
     }
   }
   
-  CreateLevel();
+  
   
   
   
@@ -92,12 +190,12 @@ $(function(){
   })();
   
   
-  Lose = function(){
-    ShowMessage("Flot klaret, du kom til bane "+Level, "Prøv Igen");
-    RestartGame();
+  Lose = function(BoxID){
+    Crates[BoxID].OpenFalse();
   }
   
-  Win = function(){
+  Win = function(BoxID){
+    Crates[BoxID].Open();
     CreateLevel();
   }
   
@@ -109,6 +207,8 @@ $(function(){
       Turning = false;
       Crates = new Array();
       CreateLevel();
+      Crates[FullCrate].Open();
+      Lost=false;
   }
   
   
@@ -134,9 +234,7 @@ $(function(){
     
     Current = $("#MessageText");
     //Apply the string to the div, scale it, and then recenter it.
-    Current.html(Message+"<br/><br/>");
-      
-    scale = Math.min(1,Math.min(PLAYGROUND_WIDTH/Current.width(),PLAYGROUND_HEIGHT/Current.height()));
+    Current.html(Message);
   }
 
   /**
@@ -155,44 +253,49 @@ $(function(){
   
   
   Step = function(){
-    if (!ShowingMessage)
+    if (Started)
     {
       //Calcualte how many miliseconds passed since last frame, to get smoother animations.
       Now = new Date().getTime();
       Delta = Now - Then;
-      if (Turning==false && TurnsThisLevel>0)
+      if (!ShowingMessage && !Paused)
       {
-        $(".CrateDiv").css('zIndex',2);
-        var CurrentCrates=[].concat(Crates);
-        var n = Math.floor(Math.random()*CurrentCrates.length);
-        Crate1 = CurrentCrates[n];
-        CurrentCrates.splice(n,1);
-        Crate2 = CurrentCrates[Math.floor(Math.random()*CurrentCrates.length)];
-        
-        
-        Crate1.Desto=Crate2.position().left;
-        Crate1.css('zIndex',3);
-        Crate2.Desto=Crate1.position().left;
-        Crate2.css('zIndex',1);
-        PathPercent=0;
-        
-        
-        Turning=true;
-      }
-      else
-      {
-        PathPercent+=Delta*(1/SpeedThisLevel)/1000
-        if (PathPercent <= 1)
-          Crate1.css({left: Crate2.Desto + (Crate1.Desto - Crate2.Desto)*PathPercent, top: 400+ Math.sin(PathPercent*Math.PI)*Math.min(Math.abs(Crate2.Desto - Crate1.Desto),500)*0.3 });
-        if (PathPercent <= 1)
-          Crate2.css({left: Crate1.Desto + (Crate2.Desto - Crate1.Desto)*PathPercent, top: 400- Math.sin(PathPercent*Math.PI)*Math.min(Math.abs(Crate2.Desto - Crate1.Desto),500)*0.3 });
+        if (Lost) 
+          RestartGame();
+        if (Turning==false && TurnsThisLevel>0)
+        {
+          $(".CrateDiv").css('zIndex',2);
+          var CurrentCrates=[].concat(Crates);
+          var n = Math.floor(Math.random()*CurrentCrates.length);
+          Crate1 = CurrentCrates[n];
+          CurrentCrates.splice(n,1);
+          Crate2 = CurrentCrates[Math.floor(Math.random()*CurrentCrates.length)];
           
-          if (PathPercent >= 1){
-            Crate1.css({left: Crate1.Desto,top: 400});
-            Crate2.css({left: Crate2.Desto,top: 400});
-            Turning=false;
-            --TurnsThisLevel;
-          }
+          
+          Crate1.Desto=Crate2.position().left;
+          Crate1.css('zIndex',3);
+          Crate2.Desto=Crate1.position().left;
+          Crate2.css('zIndex',1);
+          PathPercent=0;
+          
+          
+          Turning=true;
+        }
+        else
+        {
+          PathPercent+=Delta*(1/SpeedThisLevel)/1000
+          if (PathPercent <= 1)
+            Crate1.css({left: Crate2.Desto + (Crate1.Desto - Crate2.Desto)*PathPercent, top: 400+ Math.sin(PathPercent*Math.PI)*Math.min(Math.abs(Crate2.Desto - Crate1.Desto),500)*0.3 });
+          if (PathPercent <= 1)
+            Crate2.css({left: Crate1.Desto + (Crate2.Desto - Crate1.Desto)*PathPercent, top: 400- Math.sin(PathPercent*Math.PI)*Math.min(Math.abs(Crate2.Desto - Crate1.Desto),500)*0.3 });
+            
+            if (PathPercent >= 1){
+              Crate1.css({left: Crate1.Desto,top: 400});
+              Crate2.css({left: Crate2.Desto,top: 400});
+              Turning=false;
+              --TurnsThisLevel;
+            }
+        }
       }
       Then = Now;
     }
