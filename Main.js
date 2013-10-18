@@ -23,7 +23,7 @@ $(function(){
   }
   
   //Initiating variables.
-  var Level=2;
+  var Level=0;
   var FullCrate=0;
   var TurnsThisLevel=8;
   var SpeedThisLevel=0.2;
@@ -82,7 +82,7 @@ $(function(){
         $("#Crates").append('<div id="Crate_'+i+'" class="CrateDiv"><img id="ImgCrateB_'+i+'" src="./FlamingoBoxBack.png" Number="1" class="crate" draggable="false"/><img id="ImgCrateK_'+i+'" src="./FlamingoBoxKids.png" Number="1" class="crate" draggable="false"/><img id="ImgCrateF_'+i+'" src="./FlamingoBoxFront.png" Number="1" class="crate" draggable="false"/><img id="ImgCrateT_'+i+'" src="./FlamingoBoxTop.png" Number="1" class="crate" draggable="false"/></div>');
         
         Crates[i]=$("#Crate_"+i);
-        Crates[i].css({left: 200*(i-(CratesThisLevel/2-0.5))+$("#HustlerGamePlayground").width()/2 - CrateWidth/2, top: 400});
+        Crates[i].css({left: 200*(i-(CratesThisLevel/2-0.5))+$("#HustlerGamePlayground").width()/2 - CrateWidth/2, top: ($("#HustlerGamePlayground").height()/2-96) });
         Crates[i].css("position", "absolute");
         CrateToSort = new Array();
         for(j=0; j<i; ++j)
@@ -93,7 +93,7 @@ $(function(){
         if (i==CratesThisLevel-1)
         for(j=0; j<i; ++j)
         {
-          Crates[CrateToSort[j].number].animate({left: 200*(j-(CratesThisLevel/2-0.5))+$("#HustlerGamePlayground").width()/2 - CrateWidth/2, top: 400}, {duration: 500});
+          Crates[CrateToSort[j].number].animate({left: 200*(j-(CratesThisLevel/2-0.5))+$("#HustlerGamePlayground").width()/2 - CrateWidth/2}, {duration: 500});
         }
         Crates[i].attr('number',i);
         Crates[i].click(function(e){
@@ -299,13 +299,13 @@ $(function(){
         {
           PathPercent+=Delta*(1/SpeedThisLevel)/1000
           if (PathPercent <= 1)
-            Crate1.css({left: Crate2.Desto + (Crate1.Desto - Crate2.Desto)*PathPercent, top: 400+ Math.sin(PathPercent*Math.PI)*Math.min(Math.abs(Crate2.Desto - Crate1.Desto),500)*0.3 });
+            Crate1.css({left: Crate2.Desto + (Crate1.Desto - Crate2.Desto)*PathPercent, top: ($("#HustlerGamePlayground").height()/2-96)+ Math.sin(PathPercent*Math.PI)*Math.min(Math.abs(Crate2.Desto - Crate1.Desto),500)*0.3 });
           if (PathPercent <= 1)
-            Crate2.css({left: Crate1.Desto + (Crate2.Desto - Crate1.Desto)*PathPercent, top: 400- Math.sin(PathPercent*Math.PI)*Math.min(Math.abs(Crate2.Desto - Crate1.Desto),500)*0.3 });
+            Crate2.css({left: Crate1.Desto + (Crate2.Desto - Crate1.Desto)*PathPercent, top: ($("#HustlerGamePlayground").height()/2-96)- Math.sin(PathPercent*Math.PI)*Math.min(Math.abs(Crate2.Desto - Crate1.Desto),500)*0.3 });
             
             if (PathPercent >= 1){
-              Crate1.css({left: Crate1.Desto,top: 400});
-              Crate2.css({left: Crate2.Desto,top: 400});
+              Crate1.css({left: Crate1.Desto,top: ($("#HustlerGamePlayground").height()/2-96)});
+              Crate2.css({left: Crate2.Desto,top: ($("#HustlerGamePlayground").height()/2-96)});
               Turning=false;
               --TurnsThisLevel;
             }
